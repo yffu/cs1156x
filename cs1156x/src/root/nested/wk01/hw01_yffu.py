@@ -96,6 +96,8 @@ def get_initln(save_img):
     
     my_f = np.concatenate((my_f, np.mat([-1])), axis = 0);
     #below for validating linear function produced matches initial points generated.
+    my_flx=None
+    my_fly0=None;
     
     if debug or save_img:
         print my_w;
@@ -110,12 +112,12 @@ def get_initln(save_img):
         plt.plot(my_flx, my_fly0, 'r--')
         
     # end validation
-    return my_w, my_f
+    return my_w, my_f, my_flx, my_fly0;
     
 # main section, to be called in loop at bottom
 def run_perceptron(num_d, save_img):
     
-    my_w, my_f = get_initln(save_img);
+    my_w, my_f, my_flx, my_fly0 = get_initln(save_img);
     
     my_x, my_y, my_yw = get_datapts(num_d, my_f, my_w);
             

@@ -1,5 +1,6 @@
 from __future__ import division;
 from random import randint, uniform;
+import hw01_yffu;
 
 debug = False;
 
@@ -68,3 +69,4 @@ def run_exp_coins(*args):
     print "v_1 avg: " + str(v_1_tot/e_cnt) + " v_min avg: " + str(v_min_tot/e_cnt) + " v_rand avg: " + str(v_rand_tot/e_cnt);
     
 run_exp_coins(1000, 1000, 10);
+run_exp_pla(100, 10);
