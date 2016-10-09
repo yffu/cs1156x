@@ -1,6 +1,6 @@
 from __future__ import division;
 from random import randint, uniform;
-from root.nested.wk01.hw01_yffu import run_exp_pla;
+from root.nested.wk01.hw01_yffu import run_exp_pla, get_initln, get_datapts, get_mismat;
 
 debug = False;
 
@@ -49,6 +49,16 @@ def run_cointoss(c_cnt, t_cnt, dbug):
     
     return tmp_rst
 
+def run_linreg(*args):
+    
+    num_d, save_img = args;
+    
+    my_w, my_f, my_flx, my_fly0 = get_initln(save_img);
+    
+    my_x, my_y, my_yw = get_datapts(num_d, my_f, my_w);
+            
+    mismat_x = get_mismat(my_yw, my_y);
+
 def run_exp_coins(*args):
     exp_cnt, coin_cnt, toss_cnt = args;
     
@@ -67,6 +77,14 @@ def run_exp_coins(*args):
         e_cnt += 1;
         
     print "v_1 avg: " + str(v_1_tot/e_cnt) + " v_min avg: " + str(v_min_tot/e_cnt) + " v_rand avg: " + str(v_rand_tot/e_cnt);
-    
-run_exp_coins(1000, 1000, 10);
-run_exp_pla(100, 10);
+
+def run_exp_linreg(*args):
+    exp_cnt, num_dot = args;
+    e_cnt = 0;
+    while e_cnt < exp_cnt:
+        run_linreg(num_dot, False);
+        e_cnt += 1;
+        
+# run_exp_coins(1000, 1000, 10);
+# run_exp_pla(100, 10);
+run_exp_linreg(100, 10);

@@ -12,7 +12,7 @@ from scipy.integrate import quad;
 from random import randint;
 import csv;
     
-debug = False;
+debug = True;
 save_image = False;
 
 #Todo - figure out what they mean by chose randomly. Perhaps change to have a shuffle.
@@ -206,4 +206,4 @@ def run_exp_pla(*args):
     
     print "average iterations: " + str(ctr_avg) + " average probability: " + str(prb_avg);
     
-run_exp_pla(100, 10);
+# run_exp_pla(100, 10);
