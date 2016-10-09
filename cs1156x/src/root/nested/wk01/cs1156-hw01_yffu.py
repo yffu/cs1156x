@@ -181,10 +181,9 @@ def run_perceptron(num_d, save_img):
     
     return [itr_ctr, prb]
 
-def run_exp_pla():
+def run_exp_pla(*args):
 
-    num_hyp = 100;
-    num_dot = 10;
+    num_hyp, num_dot = args;
     
     itr_hyp = 0;
     ctr_tot=0;
@@ -205,4 +204,4 @@ def run_exp_pla():
     
     print "average iterations: " + str(ctr_avg) + " average probability: " + str(prb_avg);
     
-run_exp_pla();
+run_exp_pla(100, 10);

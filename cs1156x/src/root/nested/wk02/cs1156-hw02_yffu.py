@@ -1,9 +1,6 @@
 from __future__ import division;
 from random import randint, uniform;
 
-exp_cnt = 10000;
-coin_cnt = 1000;
-toss_cnt = 10;
 debug = False;
 
 class ExpResult():
@@ -50,20 +47,24 @@ def run_cointoss(c_cnt, t_cnt, dbug):
     tmp_rst.setC_min(c_min, v_min);
     
     return tmp_rst
-    
-    
-if debug: results = [];
-e_cnt = 0;
-v_1_tot = 0;
-v_min_tot = 0;
-v_rand_tot = 0;
 
-while e_cnt < exp_cnt:
-    tmp_rst=run_cointoss(coin_cnt, toss_cnt, debug);
-    if debug: results.append(tmp_rst);
-    v_1_tot += tmp_rst.c_1[1];
-    v_min_tot += tmp_rst.c_min[1];
-    v_rand_tot += tmp_rst.c_rand[1];
-    e_cnt += 1;
+def run_exp_coins(*args):
+    exp_cnt, coin_cnt, toss_cnt = args;
     
-print "v_1 avg: " + str(v_1_tot/e_cnt) + " v_min avg: " + str(v_min_tot/e_cnt) + " v_rand avg: " + str(v_rand_tot/e_cnt);
+    if debug: results = [];
+    e_cnt = 0;
+    v_1_tot = 0;
+    v_min_tot = 0;
+    v_rand_tot = 0;
+    
+    while e_cnt < exp_cnt:
+        tmp_rst=run_cointoss(coin_cnt, toss_cnt, debug);
+        if debug: results.append(tmp_rst);
+        v_1_tot += tmp_rst.c_1[1];
+        v_min_tot += tmp_rst.c_min[1];
+        v_rand_tot += tmp_rst.c_rand[1];
+        e_cnt += 1;
+        
+    print "v_1 avg: " + str(v_1_tot/e_cnt) + " v_min avg: " + str(v_min_tot/e_cnt) + " v_rand avg: " + str(v_rand_tot/e_cnt);
+    
+run_exp_coins(1000, 1000, 10);
