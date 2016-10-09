@@ -1,6 +1,6 @@
 from __future__ import division;
 from random import randint, uniform;
-from root.nested.wk01.hw01_yffu import get_initln, get_datapts, get_mismat, update_cls, get_y, dot_type, write_csv;
+from root.nested.wk01.hw01_yffu import get_initln, get_datapts, get_mismat, update_cls, get_y, dot_type, write_csv, loop_pla;
 from numpy.linalg import inv;
 import numpy as np;
 import matplotlib.pyplot as plt;
@@ -103,9 +103,39 @@ def run_linreg(*args):
         
     mismat_x, mismat_cnt = get_mismat(my_yw, my_y);
     
-    mismat_prt = mismat_cnt/100.0;
+    mismat_prt = (0.0 + mismat_cnt)/num_d;
     
     return my_w, mismat_prt;
+
+def run_linreg_pla(*args):
+    
+    num_d, save_img = args;
+    
+    my_w, my_f, my_flx, my_fly0 = get_initln(save_img);
+    
+    my_x, my_y, my_yw = get_datapts(num_d, my_f, my_w);
+            
+    my_w = get_linreg_w(my_x, my_y);
+    
+    my_yw = update_cls(my_x, my_w);
+    
+    mismat_x, mismat_cnt = get_mismat(my_yw, my_y);
+    
+    itr_ctr, prb, my_w =  loop_pla(mismat_x, my_w, my_f, my_y, my_yw, my_flx, my_fly0, save_img);
+    
+#     converted to double, for later division
+    itr_ctr += 0.0;
+    
+    my_yw = update_cls(my_x, my_w);
+    
+    if debug: 
+        plot_pts(my_x, my_y, my_yw);
+        
+        plot_ln(my_w, my_flx, 'c--');
+        
+        plot_ln(my_f, my_flx, 'g--');
+    
+    return my_w, itr_ctr;
 
 def run_exp_coins(*args):
     exp_cnt, coin_cnt, toss_cnt = args;
@@ -131,7 +161,7 @@ def run_exp_linreg(*args):
     e_cnt = 0;
     prb_tot=0.0;
     rcd = [];
-
+    
     while e_cnt < exp_cnt:
         tmp_w, mismat_prt = run_linreg(num_dot, False);
         tmp_w = tmp_w.transpose();
@@ -141,12 +171,36 @@ def run_exp_linreg(*args):
         if debug: 
             print "weights for g as estimated by linreg: " + str(tmp_w);
             print "fraction of insample points classified incorrectly by g: " + str(mismat_prt); 
+            plt.show(); 
     
     write_csv(rcd, 'record_linreg.csv');
     prb_avg = prb_tot/exp_cnt;
     
-    print "average fraction of mismatch on g: " + str(prb_avg);
-        
+    print "average fraction of mismatch on g: " + str(prb_avg); 
+
+def run_exp_linreg_pla(*args):
+    
+    exp_cnt, num_dot = args;
+    e_cnt = 0;
+    ctr_tot=0.0;
+    rcd = [];
+
+    while e_cnt < exp_cnt:
+        tmp_w, itr_ctr = run_linreg_pla(num_dot, False);
+        tmp_w = tmp_w.transpose();
+        ctr_tot += itr_ctr; 
+        e_cnt += 1;
+        rcd.append([tmp_w, itr_ctr]);
+        if debug: 
+            print "weights for g as estimated by linreg + pla: " + str(tmp_w);
+            print "number of iterations by pla to separate all points: " + str(itr_ctr); 
+            plt.show();
+    write_csv(rcd, 'record_linreg_pla.csv');
+    ctr_avg = ctr_tot/exp_cnt;
+    
+    print "average iterations by pla to separate all points: " + str(ctr_avg);
+   
 # run_exp_coins(1000, 1000, 10);
 # run_exp_pla(100, 10);
-run_exp_linreg(1000, 100);
+# run_exp_linreg(1000, 1000);
+run_exp_linreg_pla(1000, 10);

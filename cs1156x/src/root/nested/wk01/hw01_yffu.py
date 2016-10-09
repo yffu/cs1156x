@@ -117,30 +117,10 @@ def get_initln(save_img):
         
     # end validation
     return my_w, my_f, my_flx, my_fly0;
+
+def loop_pla(*args):
     
-# main section, to be called in loop at bottom
-def run_perceptron(num_d, save_img):
-    
-    my_w, my_f, my_flx, my_fly0 = get_initln(save_img);
-    
-    my_x, my_y, my_yw = get_datapts(num_d, my_f, my_w);
-            
-    mismat_x, mismat_cnt = get_mismat(my_yw, my_y);
-    
-    if debug:
-        
-        print "number of mismatches: " + mismat_cnt;
-        my_fly = [ get_y(x, my_w) for x in my_flx]; 
-        
-        plt.plot(my_flx, my_fly, 'c--', linewidth = 2);        
-        
-        plt.axis([-1,1,-1,1]);
-        plt.axhline(linewidth=1, color='blue');
-        plt.axvline(linewidth=1, color='blue');
-        
-        plt.plot(mismat_x[0], mismat_x[1], 'yo');
-        plt.show();
-    
+    mismat_x, my_w, my_f, my_y, my_yw, my_flx, my_fly0, save_img = args;
     itr_ctr = 0;
     
     while mismat_x != None:
@@ -188,7 +168,35 @@ def run_perceptron(num_d, save_img):
     prb, err = quad(line_diff, -1, 1, args = (my_f, my_w)); 
     prb = np.abs(prb) /4; 
     
-    return [itr_ctr, prb]
+    return [itr_ctr, prb, my_w]
+
+def run_perceptron(num_d, save_img):
+    
+#     set inital values, such as location of points, initial linear function f, initial function w, and finds the first mismatched point, if any
+    my_w, my_f, my_flx, my_fly0 = get_initln(save_img);
+    
+    my_x, my_y, my_yw = get_datapts(num_d, my_f, my_w);
+            
+    mismat_x, mismat_cnt = get_mismat(my_yw, my_y);
+    
+    if debug:
+        
+        print "number of mismatches: " + mismat_cnt;
+        my_fly = [ get_y(x, my_w) for x in my_flx]; 
+        
+        plt.plot(my_flx, my_fly, 'c--', linewidth = 2);        
+        
+        plt.axis([-1,1,-1,1]);
+        plt.axhline(linewidth=1, color='blue');
+        plt.axvline(linewidth=1, color='blue');
+        
+        plt.plot(mismat_x[0], mismat_x[1], 'yo');
+        plt.show();
+        
+    itr_ctr, prb, my_w =  loop_pla(mismat_x, my_w, my_f, my_y, my_yw, my_flx, my_fly0, save_img);
+    
+    return [itr_ctr, prb, my_w];
+
 
 def run_exp_pla(*args):
 
@@ -200,7 +208,7 @@ def run_exp_pla(*args):
     rcd = [];
     
     while itr_hyp < num_hyp:
-        ctr, prb = run_perceptron(num_dot, save_image);
+        ctr, prb, tmp_w = run_perceptron(num_dot, save_image);
         ctr_tot += ctr;
         prb_tot += prb;
         itr_hyp += 1;

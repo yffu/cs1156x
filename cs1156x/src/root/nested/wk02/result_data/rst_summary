@@ -1,0 +1,19 @@
+5. run_exp_linreg(1000, 100);
+
+average fraction of mismatch on g: 0.03991
+average fraction of mismatch on g: 0.03911
+average fraction of mismatch on g: 0.03732
+average fraction of mismatch on g: 0.03989
+
+6. run_exp_linreg(1000, 1000);
+
+average fraction of mismatch on g: 0.038431
+average fraction of mismatch on g: 0.038617
+
+7. run_exp_linreg_pla(1000, 10);
+
+average iterations by pla to separate all points: 4.649
+average iterations by pla to separate all points: 4.71
+average iterations by pla to separate all points: 4.235
+
+
