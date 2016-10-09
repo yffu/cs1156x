@@ -11,15 +11,11 @@ from numpy.linalg import inv;
 from scipy.integrate import quad;
 from random import randint;
 import csv;
-
+    
 debug = False;
 save_image = False;
-num_hyp = 1000;
-num_dot = 100;
 
 #Todo - figure out what they mean by chose randomly. Perhaps change to have a shuffle.
-
-
 def get_y(x, weight):
     # if condition for when y is zero.
     if weight.item(1,0) != 0:
@@ -70,8 +66,25 @@ def write_csv(data):
     writer.writerows(data);
     file.close();
     
-# main section, to be called in loop at bottom
-def run_perceptron(num_d, save_img):
+def get_datapts(num_d, my_f, my_w):
+    my_x = [];
+    my_y = dict();
+    my_yw = dict();
+    for i in range(0, num_d):
+        tmp_x = (random.uniform(-1, 1), random.uniform(-1, 1), 1);
+        my_x.append(tmp_x);
+        
+        tmp_y = get_cls(tmp_x, my_f);
+        my_y[tmp_x]=tmp_y;
+        
+        tmp_yw = get_cls(tmp_x, my_w);
+        my_yw[tmp_x] = tmp_yw;
+            
+        if debug:
+            plt.plot(tmp_x[0], tmp_x[1], dot_type(tmp_y, 1)); 
+    return my_x, my_y, my_yw;
+
+def get_initln(save_img):
     my_w = np.transpose(np.mat([0,0,0]));
     
     my_fp = [];
@@ -95,27 +108,16 @@ def run_perceptron(num_d, save_img):
         my_fly0 = [ get_y(x, my_f) for x in my_flx]; 
          
         plt.plot(my_flx, my_fly0, 'r--')
-         
+        
     # end validation
+    return my_w, my_f
     
-    my_x = [];
-    my_y = dict();
-    my_yw = dict();
+# main section, to be called in loop at bottom
+def run_perceptron(num_d, save_img):
     
-    mismat_x=None;
+    my_w, my_f = get_initln(save_img);
     
-    for i in range(0, num_d):
-        tmp_x = (random.uniform(-1, 1), random.uniform(-1, 1), 1);
-        my_x.append(tmp_x);
-        
-        tmp_y = get_cls(tmp_x, my_f);
-        my_y[tmp_x]=tmp_y;
-        
-        tmp_yw = get_cls(tmp_x, my_w);
-        my_yw[tmp_x] = tmp_yw;
-            
-        if debug:
-            plt.plot(tmp_x[0], tmp_x[1], dot_type(tmp_y, 1));
+    my_x, my_y, my_yw = get_datapts(num_d, my_f, my_w);
             
     mismat_x = get_mismat(my_yw, my_y);
     
@@ -179,22 +181,28 @@ def run_perceptron(num_d, save_img):
     
     return [itr_ctr, prb]
 
-itr_hyp = 0;
-ctr_tot=0;
-prb_tot=0;
-rcd = [];
+def run_exp_pla():
 
-while itr_hyp < num_hyp:
-    ctr, prb = run_perceptron(num_dot, save_image);
-    ctr_tot += ctr;
-    prb_tot += prb;
-    itr_hyp += 1;
-    rcd.append([ctr, prb]);
-    if debug: print "found solution on iteration: " + str(ctr) + " with probability of mismatch: " + str(prb);
-
-
-write_csv(rcd);
-prb_avg = prb_tot/itr_hyp;
-ctr_avg = ctr_tot/itr_hyp;
-
-print "average iterations: " + str(ctr_avg) + " average probability: " + str(prb_avg);
+    num_hyp = 100;
+    num_dot = 10;
+    
+    itr_hyp = 0;
+    ctr_tot=0;
+    prb_tot=0;
+    rcd = [];
+    
+    while itr_hyp < num_hyp:
+        ctr, prb = run_perceptron(num_dot, save_image);
+        ctr_tot += ctr;
+        prb_tot += prb;
+        itr_hyp += 1;
+        rcd.append([ctr, prb]);
+        if debug: print "found solution on iteration: " + str(ctr) + " with probability of mismatch: " + str(prb);
+    
+    write_csv(rcd);
+    prb_avg = prb_tot/itr_hyp;
+    ctr_avg = ctr_tot/itr_hyp;
+    
+    print "average iterations: " + str(ctr_avg) + " average probability: " + str(prb_avg);
+    
+run_exp_pla();
