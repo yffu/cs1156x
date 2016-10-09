@@ -12,7 +12,7 @@ from scipy.integrate import quad;
 from random import randint;
 import csv;
     
-debug = True;
+debug = False;
 save_image = False;
 
 #Todo - figure out what they mean by chose randomly. Perhaps change to have a shuffle.
@@ -32,11 +32,11 @@ def get_mismat(tmp_yw, my_y):
         if tmp_yw[k] != my_y[k]:
             mismat_xs.append(k);
     if len(mismat_xs) == 0:
-        return None;
+        return None, len(mismat_xs);
     else:
         pt = mismat_xs[randint(0, len(mismat_xs)-1)];
         if debug: print "Mismatch at point: " + str(pt);
-        return pt;
+        return pt, len(mismat_xs);
 
 def dot_type(yw, y):
     dot = None;
@@ -60,8 +60,8 @@ def line_val(x, weight):
 def line_diff(x, wgt1, wgt2):
     return line_val(x, wgt1) - line_val(x, wgt2);
 
-def write_csv(data):
-    file = open('record.csv', 'wb')
+def write_csv(data, pathname):
+    file = open(pathname, 'wb')
     writer = csv.writer(file);
     writer.writerows(data);
     file.close();
@@ -84,6 +84,13 @@ def get_datapts(num_d, my_f, my_w):
             plt.plot(tmp_x[0], tmp_x[1], dot_type(tmp_y, 1)); 
     return my_x, my_y, my_yw;
 
+def update_cls(my_x, my_w):
+    my_yw = dict();
+    for tmp_x in my_x:
+        tmp_yw = get_cls(tmp_x, my_w);
+        my_yw[tmp_x]=tmp_yw;
+    return my_yw;
+
 def get_initln(save_img):
     my_w = np.transpose(np.mat([0,0,0]));
     
@@ -96,18 +103,15 @@ def get_initln(save_img):
     
     my_f = np.concatenate((my_f, np.mat([-1])), axis = 0);
     #below for validating linear function produced matches initial points generated.
-    my_flx=None
-    my_fly0=None;
+    my_flx = np.arange(-1.2,1.3, 0.1);
+    my_fly0 = [ get_y(x, my_f) for x in my_flx];
     
     if debug or save_img:
         print my_w;
         print my_f;
         
         print my_f.item(0,0);
-        print my_f.item(1,0);
-    
-        my_flx = np.arange(-1,1.1, 0.1);
-        my_fly0 = [ get_y(x, my_f) for x in my_flx]; 
+        print my_f.item(1,0); 
          
         plt.plot(my_flx, my_fly0, 'r--')
         
@@ -121,9 +125,11 @@ def run_perceptron(num_d, save_img):
     
     my_x, my_y, my_yw = get_datapts(num_d, my_f, my_w);
             
-    mismat_x = get_mismat(my_yw, my_y);
+    mismat_x, mismat_cnt = get_mismat(my_yw, my_y);
     
     if debug:
+        
+        print "number of mismatches: " + mismat_cnt;
         my_fly = [ get_y(x, my_w) for x in my_flx]; 
         
         plt.plot(my_flx, my_fly, 'c--', linewidth = 2);        
@@ -157,7 +163,7 @@ def run_perceptron(num_d, save_img):
             pt_ctr +=1;
         
         # check for mismatch in updated my_yw and update mismat_x
-        mismat_x = get_mismat(my_yw, my_y);
+        mismat_x, mismat_cnt = get_mismat(my_yw, my_y);
         
         if debug or save_img:
             my_fly = [ get_y(x, my_w) for x in my_flx]; 
@@ -169,6 +175,7 @@ def run_perceptron(num_d, save_img):
             plt.plot(my_flx, my_fly0, 'r--', linewidth = 1);
             
             if mismat_x: plt.plot(mismat_x[0], mismat_x[1], 'yo');
+            print "number of mismatches: " + mismat_cnt;
             print "new w: "; 
             print my_w;
             if not save_img: plt.show();
@@ -200,9 +207,9 @@ def run_exp_pla(*args):
         rcd.append([ctr, prb]);
         if debug: print "found solution on iteration: " + str(ctr) + " with probability of mismatch: " + str(prb);
     
-    write_csv(rcd);
-    prb_avg = prb_tot/itr_hyp;
-    ctr_avg = ctr_tot/itr_hyp;
+    write_csv(rcd, 'record.csv');
+    prb_avg = prb_tot/num_hyp;
+    ctr_avg = ctr_tot/num_hyp;
     
     print "average iterations: " + str(ctr_avg) + " average probability: " + str(prb_avg);
     

@@ -1,6 +1,9 @@
 from __future__ import division;
 from random import randint, uniform;
-from root.nested.wk01.hw01_yffu import run_exp_pla, get_initln, get_datapts, get_mismat;
+from root.nested.wk01.hw01_yffu import get_initln, get_datapts, get_mismat, update_cls, get_y, dot_type, write_csv;
+from numpy.linalg import inv;
+import numpy as np;
+import matplotlib.pyplot as plt;
 
 debug = False;
 
@@ -49,6 +52,34 @@ def run_cointoss(c_cnt, t_cnt, dbug):
     
     return tmp_rst
 
+def get_pseudoinv(my_x):
+    mat_x = np.matrix(my_x);
+    mat_xt = mat_x.transpose();
+    return inv(mat_xt * mat_x)*mat_xt;
+
+def get_linreg_w(my_x, my_y):
+    pseudo = get_pseudoinv(my_x);
+    mat_y = [my_y[x] for x in my_x];
+    mat_y = np.matrix(mat_y).transpose();
+    if debug: print "multiplying pseudo inv : " + str(pseudo) + " with y matrix: " + str(mat_y);
+    return np.dot(pseudo,mat_y);
+
+def plot_ln(my_w, my_flx, clr):
+    my_fly = [ get_y(x, my_w) for x in my_flx]; 
+    plt.plot(my_flx, my_fly, clr, linewidth = 2);        
+        
+    plt.axis([-1.2,1.2,-1.2,1.2]);
+    plt.axhline(linewidth=1, color='blue');
+    plt.axvline(linewidth=1, color='blue');
+    
+def plot_pts(my_x, my_cls1, my_cls2 = None):
+    if my_cls2 == None:
+        for tmp_x in my_x:
+            plt.plot(tmp_x[0], tmp_x[1], dot_type(my_cls1[tmp_x], 1));
+    else:
+        for tmp_x in my_x:
+            plt.plot(tmp_x[0], tmp_x[1], dot_type(my_cls1[tmp_x], my_cls2[tmp_x]));
+            
 def run_linreg(*args):
     
     num_d, save_img = args;
@@ -57,7 +88,24 @@ def run_linreg(*args):
     
     my_x, my_y, my_yw = get_datapts(num_d, my_f, my_w);
             
-    mismat_x = get_mismat(my_yw, my_y);
+    my_w = get_linreg_w(my_x, my_y);
+    
+    my_yw = update_cls(my_x, my_w);
+    
+    if debug: 
+        plot_pts(my_x, my_y, my_yw);
+        
+        plot_ln(my_w, my_flx, 'c--');
+        
+        plot_ln(my_f, my_flx, 'g--');
+           
+        plt.show();
+        
+    mismat_x, mismat_cnt = get_mismat(my_yw, my_y);
+    
+    mismat_prt = mismat_cnt/100.0;
+    
+    return my_w, mismat_prt;
 
 def run_exp_coins(*args):
     exp_cnt, coin_cnt, toss_cnt = args;
@@ -81,10 +129,24 @@ def run_exp_coins(*args):
 def run_exp_linreg(*args):
     exp_cnt, num_dot = args;
     e_cnt = 0;
+    prb_tot=0.0;
+    rcd = [];
+
     while e_cnt < exp_cnt:
-        run_linreg(num_dot, False);
+        tmp_w, mismat_prt = run_linreg(num_dot, False);
+        tmp_w = tmp_w.transpose();
+        prb_tot += mismat_prt; 
         e_cnt += 1;
+        rcd.append([tmp_w, mismat_prt]);
+        if debug: 
+            print "weights for g as estimated by linreg: " + str(tmp_w);
+            print "fraction of insample points classified incorrectly by g: " + str(mismat_prt); 
+    
+    write_csv(rcd, 'record_linreg.csv');
+    prb_avg = prb_tot/exp_cnt;
+    
+    print "average fraction of mismatch on g: " + str(prb_avg);
         
 # run_exp_coins(1000, 1000, 10);
 # run_exp_pla(100, 10);
-run_exp_linreg(100, 10);
+run_exp_linreg(1000, 100);
