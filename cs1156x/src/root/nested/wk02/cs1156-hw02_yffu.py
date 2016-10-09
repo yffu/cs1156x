@@ -1,6 +1,6 @@
 from __future__ import division;
 from random import randint, uniform;
-import hw01_yffu;
+from root.nested.wk01.hw01_yffu import run_exp_pla;
 
 debug = False;
 
